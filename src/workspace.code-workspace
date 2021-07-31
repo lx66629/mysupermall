@@ -1,0 +1,13 @@
+{
+    "folders": [
+		{
+			"path": "..\\.."
+		},
+		{
+			"path": "..\\..\\..\\..\\上课讲义\\文档\\text\\vuex"
+		}
+	],
+    "settings": {
+        "liveServer.settings.multiRootWorkspaceName": "vuex"
+    }
+}
