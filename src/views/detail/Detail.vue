@@ -17,6 +17,7 @@
       <detail-comment-info :commentInfo="commentInfo" ref="comment" />
       <detail-recommends-info :goods="recommends" ref="recommends" />
     </scroller>
+    <detail-bottom-bar @addcart="addcart" />
   </div>
 </template>
 
@@ -37,6 +38,7 @@ import DetailGoodsInfo from "./childComps/DetailGoodsInfo.vue";
 import DetailParamInfo from "./childComps/DetailParamInfo.vue";
 import DetailCommentInfo from "./childComps/DetailCommentInfo.vue";
 import DetailRecommendsInfo from "./childComps/DetailRecommendsInfo.vue";
+import DetailBottomBar from './childComps/DetailBottomBar.vue';
 export default {
   name: "Detail",
   components: {
@@ -49,6 +51,7 @@ export default {
     DetailParamInfo,
     DetailCommentInfo,
     DetailRecommendsInfo,
+    DetailBottomBar,
   },
 
   data() {
@@ -62,7 +65,7 @@ export default {
       commentInfo: {},
       recommends: [],
       themeTopYs: [],
-      currentIndex:0
+      currentIndex: 0,
     };
   },
   created() {
@@ -121,17 +124,26 @@ export default {
       console.log(index);
       this.$refs.scroller.scroller.scrollTo(0, -this.themeTopYs[index], 300);
     },
-    contentscroll(position){
+    contentscroll(position) {
       // console.log(position);
       let positionY = -position.y;
       let length = this.themeTopYs.length;
-      for(let i = 0;i<length;i++){
-        if(this.currentIndex !== i && ((i < length - 1 && positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i+1]) ||(i === length - 1 && positionY>= this.themeTopYs[i]))){
+      for (let i = 0; i < length; i++) {
+        if (
+          this.currentIndex !== i &&
+          ((i < length - 1 &&
+            positionY >= this.themeTopYs[i] &&
+            positionY < this.themeTopYs[i + 1]) ||
+            (i === length - 1 && positionY >= this.themeTopYs[i]))
+        ) {
           this.currentIndex = i;
           console.log(this.currentIndex);
-          this.$refs.nav.currentindex = this.currentIndex
+          this.$refs.nav.currentindex = this.currentIndex;
         }
       }
+    },
+    addcart(){
+      console.log('添加购物车');
     }
   },
 };
