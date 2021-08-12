@@ -1,5 +1,5 @@
 <template>
-<div class="goods-item">
+<div class="goods-item" @click="clickItem">
     <img :src="goodsItem.show.img" alt="" @load="ImgLoad">
     <div class="goods-info">
         <p>{{goodsItem.title}}</p>
@@ -20,6 +20,15 @@ export default {
     methods: {
       ImgLoad(){
         this.$bus.$emit('imgload')
+      },
+      clickItem(){
+        console.log('---商品被点击了---');
+        this.$router.push({
+          path:'/detail',
+          query:{
+            iid:this.goodsItem.iid
+          }
+        })
       }
     }
 }

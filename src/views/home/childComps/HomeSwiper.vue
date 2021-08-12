@@ -3,7 +3,7 @@
       <swiper>
       <swiper-item v-for="(item, index) in cbanners" :key="index">
         <a :href="item.link">
-          <img :src="item.image" alt="" />
+          <img :src="item.image" alt="" @load="hsimgLoad" />
         </a>
       </swiper-item>
     </swiper>
@@ -18,6 +18,11 @@ export default {
         Swiper,
         SwiperItem
     },
+    data () {
+      return {
+          isLoad:false
+      }
+    },
     props:{
         cbanners:{
             type:Array,
@@ -26,6 +31,14 @@ export default {
             }
         }
 
+    },
+    methods: {
+      hsimgLoad(){
+        if(!this.isLoad){
+        this.$emit('SwiperImgLoad')
+        this.isLoad = true
+        }
+      }
     } 
     }
 </script>

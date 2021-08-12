@@ -3,6 +3,13 @@
     <NavBar class="home-nav">
       <div slot="center">购物车</div>
     </NavBar>
+    <tab-control
+      class="tabcontrol1"
+      :titles="titles"
+      @tabClick="tabClick"
+      ref="tabControl"
+      v-show="isShow"
+    />
     <scroller
       class="home-scroller"
       ref="scroller"
@@ -11,10 +18,15 @@
       :pullUpLoad="true"
       @pullingUp="LoadMore"
     >
-      <home-swiper :cbanners="banners" />
+      <home-swiper :cbanners="banners" @SwiperImgLoad="SwiperImgLoad" />
       <home-recommend :crecommend="recommend" />
       <home-feature />
-      <tab-control class="tabcontrol" :titles="titles" @tabClick="tabClick" />
+      <tab-control
+        class="tabcontrol2"
+        :titles="titles"
+        @tabClick="tabClick"
+        ref="tabControl"
+      />
       <goods-list :goods="showGoods" />
     </scroller>
     <!-- .native 监听原生事件 -->
@@ -26,7 +38,6 @@
 import NavBar from "components/common/navbar/NavBar.vue";
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
-
 import HomeSwiper from "./childComps/HomeSwiper.vue";
 import HomeRecommend from "./childComps/HomeRecommend.vue";
 import HomeFeature from "./childComps/HomeFeature.vue";
@@ -59,6 +70,10 @@ export default {
       },
       crruentType: "pop",
       isShowBackTop: false,
+      tabOffsetTop: 0,
+      isTabFixed: false,
+      isShow: false,
+      saveY: 0,
     };
   },
   created() {
@@ -66,34 +81,39 @@ export default {
     this.getHomeGoods("pop");
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
-    
   },
-  mounted () {
+  mounted() {
+    // this.$refs.scroller.refresh();
     //防抖
-  const refresh = this.debounce(this.$refs.scroller.refresh,200)
-    
+
+    const refresh = this.debounce(this.$refs.scroller.refresh, 200);
+
     this.$bus.$on("imgload", () => {
       console.log("-----");
       // this.$refs.scroller && this.$refs.scroller.refresh();
-      refresh()
+      refresh();
     });
   },
   methods: {
-    
-    debounce(func,delay){
-      let timer = null
+    SwiperImgLoad() {
+      // console.log(this.$refs.tabControl.$el.offsetTop);
+      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
+    },
+    //防抖
+    debounce(func, delay) {
+      let timer = null;
       return function (...args) {
-        if(timer) clearTimeout(timer)
-      timer = setTimeout(() => {
-        func.apply(this,args)
-      }, delay);
-      }
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          func.apply(this, args);
+        }, delay);
+      };
     },
 
     //网络请求相关方法
     getHomeMultidata() {
       getHomeMultidata().then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         this.banners = res.data.banner.list;
         this.recommend = res.data.recommend.list;
       });
@@ -101,7 +121,7 @@ export default {
     getHomeGoods(type) {
       const page = this.goods[type].page + 1;
       getHomeGoods(type, page).then((res) => {
-        console.log(res);
+        // console.log(res);
         this.goods[type].list.push(...res.data.list);
         // console.log(this.goods[type].list);
         this.goods[type].page += 1;
@@ -111,7 +131,7 @@ export default {
 
     //事件监听相关方法
     tabClick(index) {
-      console.log(index);
+      // console.log(index);
       switch (index) {
         case 0:
           this.crruentType = "pop";
@@ -126,10 +146,12 @@ export default {
     },
     backTopClick() {
       // 通过$refs拿到组件中的对象
-      this.$refs.scroller.scrollTo(0, 0, 500);
+      this.$refs.scroller.scroller.scrollTo(0, 0, 500);
     },
     getPostion(postion) {
       this.isShowBackTop = -postion.y > 300;
+      this.isTabFixed = -postion.y > this.tabOffsetTop;
+      this.isShow = -postion.y > this.tabOffsetTop;
     },
     LoadMore() {
       console.log("loading");
@@ -141,29 +163,38 @@ export default {
       return this.goods[this.crruentType].list;
     },
   },
+
+  activated() {
+      this.$refs.scroller.refresh();
+      this.$refs.scroller.scroller.scrollTo(0, this.saveY, 0);
+  },
+
+
+  deactivated() {
+    this.saveY = this.$refs.scroller.getScrollY();
+  },
 };
 </script>
 
 <style scoped>
-#home {
+/* #home {
   padding-top: 44px;
-}
+} */
 .home-nav {
   background-color: var(--color-tint);
   color: #fff;
-  position: fixed;
-  left: 0;
-  right: 0;
+}
+.tabcontrol1 {
+  position: relative;
   top: 0;
   z-index: 9;
 }
-.tabcontrol {
+.tabcontrol2 {
   position: sticky;
   top: 44px;
   z-index: 9;
 }
 .home-scroller {
-  /* height:calc(100vh - 93px); */
   overflow: hidden;
   position: absolute;
   top: 44px;
